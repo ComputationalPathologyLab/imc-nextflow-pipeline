@@ -248,7 +248,6 @@ process STEINBOCK_EXPORT_ANNDATA {
     path masks_dir
     path intensities_dir
     path regionprops_dir
-    path neighbors_dir
 
     output:
     path "project/cells.h5ad", emit: cells_h5ad
@@ -264,10 +263,9 @@ process STEINBOCK_EXPORT_ANNDATA {
     cp -r "${masks_dir}" project/masks
     cp -r "${intensities_dir}" project/intensities
     cp -r "${regionprops_dir}" project/regionprops
-    cp -r "${neighbors_dir}" project/neighbors
 
     cd project
-    steinbock export anndata --intensities intensities --data regionprops --neighbors neighbors -o cells.h5ad
+    steinbock export anndata --intensities intensities --data regionprops -o cells.h5ad
     """
 }
 
@@ -323,10 +321,13 @@ workflow {
         .fromPath("${params.input}/*", type: 'dir', checkIfExists: true)
         .filter { it.isDirectory() }
 
-    validated   = VALIDATE_ROI_CHANNELS(roi_dirs)
-    panel_ch    = MAKE_SHARED_PANEL(first_roi)
-    stack_ch    = STACK_ROI(roi_dirs_for_stack)
-    images_ch   = MAKE_IMAGES_CSV(stack_ch.collect())
+    validated_ch = VALIDATE_ROI_CHANNELS(roi_dirs)
+
+    panel_ch = MAKE_SHARED_PANEL(first_roi)
+
+    stack_ch = STACK_ROI(roi_dirs_for_stack)
+
+    images_ch = MAKE_IMAGES_CSV(stack_ch.collect())
 
     masks_ch = STEINBOCK_SEGMENT(
         stack_ch.collect(),
@@ -362,16 +363,6 @@ workflow {
         masks_ch.masks,
         intensities_ch.intensities,
         regionprops_ch.regionprops
-    )
-
-    h5ad_ch = STEINBOCK_EXPORT_ANNDATA(
-        stack_ch.collect(),
-        panel_ch,
-        images_ch,
-        masks_ch.masks,
-        intensities_ch.intensities,
-        regionprops_ch.regionprops,
-        neighbors_ch.neighbors
     )
 
     graphs_ch = STEINBOCK_EXPORT_GRAPHS(

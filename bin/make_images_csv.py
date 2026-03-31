@@ -32,20 +32,24 @@ def main() -> None:
         if img.ndim != 3:
             raise ValueError(f"{f.name} is not 3D. Shape: {img.shape}")
 
-        channels, height, width = img.shape
+        num_channels, height, width = img.shape
 
         rows.append(
             {
                 "image": f.stem,
                 "width_px": width,
                 "height_px": height,
+                "num_channels": num_channels,
             }
         )
 
     output_csv.parent.mkdir(parents=True, exist_ok=True)
 
     with output_csv.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=["image", "width_px", "height_px"])
+        writer = csv.DictWriter(
+            fh,
+            fieldnames=["image", "width_px", "height_px", "num_channels"]
+        )
         writer.writeheader()
         writer.writerows(rows)
 
