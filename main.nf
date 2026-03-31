@@ -323,37 +323,38 @@ workflow {
         .fromPath("${params.input}/*", type: 'dir', checkIfExists: true)
         .filter { it.isDirectory() }
 
-    validated = VALIDATE_ROI_CHANNELS(roi_dirs)
-    panel_ch  = MAKE_SHARED_PANEL(first_roi)
-    stack_ch  = STACK_ROI(roi_dirs_for_stack)
-    images_ch = MAKE_IMAGES_CSV(stack_ch.collect())
+    validated   = VALIDATE_ROI_CHANNELS(roi_dirs)
+    panel_ch    = MAKE_SHARED_PANEL(first_roi)
+    stack_ch    = STACK_ROI(roi_dirs_for_stack)
+    images_ch   = MAKE_IMAGES_CSV(stack_ch.collect())
 
-    masks_ch  = STEINBOCK_SEGMENT(
+    masks_ch = STEINBOCK_SEGMENT(
         stack_ch.collect(),
         panel_ch,
         images_ch
     )
 
-    STEINBOCK_MEASURE_INTENSITIES(
+    intensities_ch = STEINBOCK_MEASURE_INTENSITIES(
         stack_ch.collect(),
         panel_ch,
         images_ch,
         masks_ch.masks
     )
 
-    STEINBOCK_MEASURE_REGIONPROPS(
+    regionprops_ch = STEINBOCK_MEASURE_REGIONPROPS(
         stack_ch.collect(),
         panel_ch,
         images_ch,
         masks_ch.masks
     )
 
-    STEINBOCK_MEASURE_NEIGHBORS(
+    neighbors_ch = STEINBOCK_MEASURE_NEIGHBORS(
         stack_ch.collect(),
         panel_ch,
         images_ch,
         masks_ch.masks
     )
+
     csv_ch = STEINBOCK_EXPORT_CSV(
         stack_ch.collect(),
         panel_ch,
