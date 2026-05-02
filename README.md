@@ -258,9 +258,6 @@ This pipeline would not have been possible without the tools and infrastructure 
 
 ## Citation
 
-If you use `imc-nextflow-pipeline` in your research, please cite:
-
-> Hussain R. *et al.* (2026). Sarcoma Microenvironment Score (SMS): an AI-based predictive and prognostic framework for soft-tissue sarcoma stratification using Imaging Mass Cytometry and multi-omics integration. *Manuscript in preparation.* Humanitas Research Hospital (IRCCS), Milan, Italy.
 
 Please also cite the following tools used by the pipeline:
 
